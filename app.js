@@ -1,11 +1,13 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
+const helmet = require('helmet');
 const bodyParcer = require('body-parser');
 const { celebrate, Joi } = require('celebrate');
 const { errors } = require('celebrate');
 const cors = require('cors');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
+const { limiter } = require('./middlewares/rate-limites');
 const usersRouter = require('./routers/users');
 const moviesRouter = require('./routers/movies');
 const { createNewProfile, login } = require('./controllers/users');
@@ -15,7 +17,11 @@ const NotFoundError = require('./error/not-found-error');
 const app = express();
 const { PORT = 3000 } = process.env;
 
+app.use(helmet());
+
 app.use(cors());
+
+app.use(limiter);
 
 mongoose.connect('mongodb://localhost:27017/bitfilmsdb', {
   useNewUrlParser: true,

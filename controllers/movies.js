@@ -14,10 +14,11 @@ module.exports.getSavedMovies = (req, res) => {
 // Создание карточки
 module.exports.createNewMovie = (req, res, next) => {
   const owner = req.user._id;
+  const movieId = req.movId;
   const {
     country,
     director,
-    duretion,
+    duration,
     year,
     description,
     image,
@@ -30,7 +31,7 @@ module.exports.createNewMovie = (req, res, next) => {
   Movie.create({
     country,
     director,
-    duretion,
+    duration,
     year,
     description,
     image,
@@ -39,6 +40,7 @@ module.exports.createNewMovie = (req, res, next) => {
     nameEN,
     thumbnail,
     owner,
+    movieId,
   })
     .then((movie) => res.send(movie))
     .catch((err) => {
