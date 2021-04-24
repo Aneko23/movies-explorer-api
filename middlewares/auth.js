@@ -1,5 +1,6 @@
 const { NODE_ENV, JWT_SECRET } = process.env;
 const jwt = require('jsonwebtoken');
+const BadRequestError = require('../error/bad-request-error');
 const UnauthorizedError = require('../error/unauthorized-error');
 
 module.exports = (req, res, next) => {
@@ -16,6 +17,8 @@ module.exports = (req, res, next) => {
   } catch (err) {
     if (err.name === 'UnauthorizedError') {
       next(new UnauthorizedError('Id пользователя введён неверно'));
+    } else if (err.message === 'jwt malformed') {
+      next(new BadRequestError('Токен передан неверно'));
     } else {
       next(err);
     }

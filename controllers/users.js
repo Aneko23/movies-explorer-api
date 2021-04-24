@@ -9,7 +9,6 @@ const MongoError = require('../error/mongo-error');
 
 // Создание нового профиля
 module.exports.createNewProfile = (req, res, next) => {
-  // eslint-disable-next-line object-curly-newline
   const { email, password, name } = req.body;
   if (!email || !password) {
     throw new BadRequestError('Не передан емейл или пароль');
@@ -20,11 +19,11 @@ module.exports.createNewProfile = (req, res, next) => {
       email,
       password: hash,
     }))
-    .then((user) => res.send({ Message: 'Пользователь успешно создан' }))
+    .then(() => res.send({ Message: 'Пользователь успешно создан' }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Введены некорректные данные пользователя'));
-      } else if (err.name === 'MongoError') {
+      } else if (err.name === 'MongoError' && err.code === 11000) {
         next(new MongoError('Такой пользователь уже зарегистрирован'));
       } else {
         next(err);
@@ -63,6 +62,8 @@ module.exports.updateMyProfile = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Введены некорректные данные пользователя'));
+      } else if (err.name === 'MongoError' && err.code === 11000) {
+        next(new MongoError('Такой email уже есть в базе данных'));
       } else {
         next(err);
       }
@@ -80,10 +81,10 @@ module.exports.login = (req, res, next) => {
         { expiresIn: '7d' },
       );
       // вернём токен
-      res.send({ token, user });
+      res.send({ token });
     })
     .catch((err) => {
-      if (err.name === 'Error') {
+      if (err.message === 'Неправильные почта или пароль') {
         next(new UnauthorizedError('Неправильно введены email или пароль'));
       } else {
         next(err);

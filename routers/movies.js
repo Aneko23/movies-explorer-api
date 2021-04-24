@@ -13,12 +13,13 @@ router.post('/', celebrate({
     duration: Joi.number().required(),
     year: Joi.string().required(),
     description: Joi.string().required(),
-    image: Joi.string().uri().required(),
+    image: Joi.string().required().uri(),
     trailer: Joi.string().uri().required(),
     thumbnail: Joi.string().uri().required(),
     nameRU: Joi.string().required(),
     nameEN: Joi.string().required(),
-  }).unknown(true),
+    movieId: Joi.string().required().length(10),
+  }),
 }), createNewMovie);
 
 router.delete('/:movieId', celebrate({

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const validator = require('validator');
 
 // Схема фильма
 const movieSchema = new mongoose.Schema({
@@ -26,40 +27,41 @@ const movieSchema = new mongoose.Schema({
     type: String,
     required: true,
     validate: {
-      validator(v) {
-        return /(https*:\/\/)(www\.)*(\w{1,}\W{1,}){1,}/gm.test(v);
-      },
-      message: 'URL введён неверно',
+      validator: (value) => validator.isURL(value, { protocols: ['http', 'https', 'ftp'], require_tld: true, require_protocol: true }),
+      message: 'URL неправильного формата',
     },
   },
   trailer: {
     type: String,
     required: true,
     validate: {
-      validator(v) {
-        return /(https*:\/\/)(www\.)*(\w{1,}\W{1,}){1,}/gm.test(v);
-      },
-      message: 'URL введён неверно',
+      validator: (value) => validator.isURL(value, { protocols: ['http', 'https', 'ftp'], require_tld: true, require_protocol: true }),
+      message: 'URL неправильного формата',
     },
   },
   thumbnail: {
     type: String,
     required: true,
     validate: {
-      validator(v) {
-        return /(https*:\/\/)(www\.)*(\w{1,}\W{1,}){1,}/gm.test(v);
-      },
-      message: 'URL введён неверно',
+      validator: (value) => validator.isURL(value, { protocols: ['http', 'https', 'ftp'], require_tld: true, require_protocol: true }),
+      message: 'URL неправильного формата',
     },
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'user',
     required: true,
+    select: false,
   },
   movieId: {
     type: String,
     required: true,
+    validate: {
+      validator(v) {
+        return /[0-9]{10}/gm.test(v);
+      },
+      message: 'movieId введён неверно',
+    },
   },
   nameRU: {
     type: String,
@@ -71,4 +73,4 @@ const movieSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model('card', movieSchema);
+module.exports = mongoose.model('movie', movieSchema);

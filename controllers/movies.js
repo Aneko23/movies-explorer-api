@@ -3,18 +3,16 @@ const BadRequestError = require('../error/bad-request-error');
 const NotFoundError = require('../error/not-found-error');
 const ForbiddenError = require('../error/forbidden-error');
 
-// Получение списка всех карточек
-module.exports.getSavedMovies = (req, res) => {
+// Получение списка всех сохранённых фильмах
+module.exports.getSavedMovies = (req, res, next) => {
   Movie.find({ owner: req.user._id })
-    .populate('owner')
     .then((movie) => res.status(200).send(movie))
-    .catch((err) => res.status(500).send({ message: err }));
+    .catch((err) => next(err));
 };
 
-// Создание карточки
+// Создание фильма
 module.exports.createNewMovie = (req, res, next) => {
   const owner = req.user._id;
-  const movieId = req.movId;
   const {
     country,
     director,
@@ -26,6 +24,7 @@ module.exports.createNewMovie = (req, res, next) => {
     nameRU,
     nameEN,
     thumbnail,
+    movieId,
   } = req.body;
 
   Movie.create({
@@ -39,10 +38,22 @@ module.exports.createNewMovie = (req, res, next) => {
     nameRU,
     nameEN,
     thumbnail,
-    owner,
     movieId,
+    owner,
   })
-    .then((movie) => res.send(movie))
+    .then(() => res.send({
+      country,
+      director,
+      duration,
+      year,
+      description,
+      image,
+      trailer,
+      nameRU,
+      nameEN,
+      thumbnail,
+      movieId,
+    }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Введены некорректные данные'));
@@ -52,16 +63,20 @@ module.exports.createNewMovie = (req, res, next) => {
     });
 };
 
-// Удаление карточки
+// Удаление фильма
 module.exports.deleteMovie = (req, res, next) => {
   Movie.findById(req.params.movieId)
+    .populate('owner')
     .orFail(new NotFoundError('Такой карточки не существует'))
     .then((movie) => {
       if (movie.owner.equals(req.user._id)) {
         movie.remove();
-        return res.status(200).send({ message: 'Карточка успешно удалена' });
+      } else {
+        throw new ForbiddenError('Вы не можете удалить карточку другого пользователя');
       }
-      throw new ForbiddenError('Вы не можете удалить карточку другого пользователя');
+    })
+    .then(() => {
+      res.status(200).send({ message: 'Карточка успешно удалена' });
     })
     .catch((err) => {
       if (err.name === 'CastError') {

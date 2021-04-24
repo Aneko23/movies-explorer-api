@@ -24,6 +24,7 @@
     "helmet": "^4.5.0",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.12.3",
+    "validator": "^13.6.0",
     "winston": "^3.3.3"
   },
   "devDependencies": {

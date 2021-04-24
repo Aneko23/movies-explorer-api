@@ -21,8 +21,6 @@ app.use(helmet());
 
 app.use(cors());
 
-app.use(limiter);
-
 mongoose.connect('mongodb://localhost:27017/bitfilmsdb', {
   useNewUrlParser: true,
   useCreateIndex: true,
@@ -35,6 +33,8 @@ app.use(bodyParcer.json());
 
 app.use(requestLogger);
 
+app.use(limiter);
+
 app.post('/signin', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
@@ -46,7 +46,7 @@ app.post('/signup', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().required(),
-    name: Joi.string().required(),
+    name: Joi.string().required().min(2).max(30),
   }),
 }), createNewProfile);
 
@@ -55,7 +55,7 @@ app.use('/users', auth, usersRouter);
 app.use('/movies', auth, moviesRouter);
 
 // Если ввели несуществующий адрес
-app.use((req, res) => {
+app.use(() => {
   throw new NotFoundError('Запрашиваемый ресурс не найден');
 });
 
@@ -66,7 +66,7 @@ app.use(errors());
 
 // Централизованный обработчик ошибок
 app.use((err, req, res, next) => {
-  res.status(err.statusCode || 500).send({ message: `${err.message}` } || 'Ошибка на сервере');
+  res.status(err.statusCode || 500).send({ message: `${err.message}` } || 'Произошла неизвестная ошибка');
   next();
 });
 
