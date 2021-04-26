@@ -54,14 +54,8 @@ const movieSchema = new mongoose.Schema({
     select: false,
   },
   movieId: {
-    type: String,
+    type: Number,
     required: true,
-    validate: {
-      validator(v) {
-        return /[0-9]{10}/gm.test(v);
-      },
-      message: 'movieId введён неверно',
-    },
   },
   nameRU: {
     type: String,

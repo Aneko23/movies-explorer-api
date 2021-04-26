@@ -1,4 +1,6 @@
 require('dotenv').config();
+
+// const { BASE_URL } = process.env;
 const express = require('express');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
@@ -15,13 +17,13 @@ const auth = require('./middlewares/auth');
 const NotFoundError = require('./error/not-found-error');
 
 const app = express();
-const { PORT = 3000 } = process.env;
+const { BASE_URL, PORT = 3000 } = process.env;
 
 app.use(helmet());
 
 app.use(cors());
 
-mongoose.connect('mongodb://localhost:27017/bitfilmsdb', {
+mongoose.connect(BASE_URL, {
   useNewUrlParser: true,
   useCreateIndex: true,
   useUnifiedTopology: true,
@@ -50,9 +52,11 @@ app.post('/signup', celebrate({
   }),
 }), createNewProfile);
 
-app.use('/users', auth, usersRouter);
+app.use(auth);
 
-app.use('/movies', auth, moviesRouter);
+app.use('/users', usersRouter);
+
+app.use('/movies', moviesRouter);
 
 // Если ввели несуществующий адрес
 app.use(() => {
