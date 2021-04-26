@@ -84,6 +84,7 @@ module.exports.login = (req, res, next) => {
       res.send({ token });
     })
     .catch((err) => {
+      console.log(err.name);
       if (err.name === 'Error') {
         next(new UnauthorizedError('Неправильно введены email или пароль'));
       } else {
