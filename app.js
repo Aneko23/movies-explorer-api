@@ -1,6 +1,5 @@
 require('dotenv').config();
 
-// const { BASE_URL } = process.env;
 const express = require('express');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
@@ -70,7 +69,7 @@ app.use(errors());
 
 // Централизованный обработчик ошибок
 app.use((err, req, res, next) => {
-  res.status(err.statusCode || 500).send({ message: `${err.message}` } || 'Произошла неизвестная ошибка');
+  res.status(err.statusCode || 500).send({ message: `${err.message}` } || { message: 'Произошла неизвестная ошибка' });
   next();
 });
 

@@ -4,7 +4,6 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const NotFoundError = require('../error/not-found-error');
 const BadRequestError = require('../error/bad-request-error');
-const UnauthorizedError = require('../error/unauthorized-error');
 const MongoError = require('../error/mongo-error');
 
 // Создание нового профиля
@@ -83,11 +82,5 @@ module.exports.login = (req, res, next) => {
       // вернём токен
       res.send({ token });
     })
-    .catch((err) => {
-      if (err.name === 'UnauthorizedError') {
-        next(new UnauthorizedError('Неправильно введены email или пароль'));
-      } else {
-        next(err);
-      }
-    });
+    .catch((err) => next(err));
 };
